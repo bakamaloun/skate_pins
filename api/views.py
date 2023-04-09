@@ -18,6 +18,5 @@ class Logout(GenericAPIView):
                               TokenAuth]
 
     def get(self, request, format=None):
-        # simply delete the token to force a login
         request.user.auth_token.delete()
         return Response({"Message": "You are logged out"}, status=status.HTTP_200_OK)
