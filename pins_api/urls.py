@@ -7,4 +7,6 @@ urlpatterns = [
     path('<int:pk>/update/', views.PinUpdateAPIView.as_view()),
     path('<int:pk>/delete/', views.PinDeleteAPIView.as_view()),
     path('', views.PinListCreateAPIView.as_view()),
+    path('create/', views.PinCreateAPIView.as_view()),
+    path('all/', views.PinListAPIView.as_view()),
 ]

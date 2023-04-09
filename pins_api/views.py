@@ -34,11 +34,16 @@ class PinListCreateAPIView(generics.ListCreateAPIView):
 class PinDetailAPIView(generics.RetrieveAPIView):
     queryset = Pin.objects.all()
     serializer_class = PinSerializer
+    authentication_classes = [authentication.SessionAuthentication,
+                              TokenAuth]
 
 #update API
 class PinUpdateAPIView(generics.UpdateAPIView):
     queryset = Pin.objects.all()
     serializer_class = PinSerializer
+    authentication_classes = [authentication.SessionAuthentication,
+                              TokenAuth]
+    permission_classes = [IsEditorPermission]
     lookup_field = 'pk'
 
     def make_update(self, serializer):
@@ -50,7 +55,26 @@ class PinUpdateAPIView(generics.UpdateAPIView):
 class PinDeleteAPIView(generics.DestroyAPIView):
     queryset = Pin.objects.all()
     serializer_class = PinSerializer
+    authentication_classes = [authentication.SessionAuthentication,
+                              TokenAuth]
+    permission_classes = [IsEditorPermission]
     lookup_field = 'pk'
 
     def make_delete(self, instance):
         super().perform_destroy(instance)
+
+#create API
+class PinCreateAPIView(generics.CreateAPIView):
+    queryset = Pin.objects.all()
+    serializer_class = PinSerializer
+    authentication_classes = [authentication.SessionAuthentication,
+                              TokenAuth]
+    permission_classes = [IsEditorPermission]
+
+#view list API
+class PinListAPIView(generics.ListAPIView):
+
+    queryset = Pin.objects.all()
+    serializer_class = PinSerializer
+    authentication_classes = [authentication.SessionAuthentication,
+                              TokenAuth]
