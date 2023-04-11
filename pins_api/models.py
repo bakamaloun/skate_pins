@@ -17,6 +17,7 @@ class Pin(models.Model):
     longitude = models.CharField(max_length=100, default='0.0')
     created_by = models.ForeignKey(User, related_name='Pins', on_delete=models.CASCADE, null=True)
     #approved, def=F
+    is_approved = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
