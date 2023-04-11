@@ -3,8 +3,8 @@ from django.shortcuts import render
 # Create your views here.
 
 from django.shortcuts import render
-from .models import Pin
-from .serializers import PinSerializer
+from .models import Pin, PinReview
+from .serializers import PinSerializer, PinReviewSerializer
 from .permissions import IsEditorPermission
 from api.authentication import TokenAuth
 from rest_framework import generics, permissions, authentication
@@ -15,6 +15,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 #create and list APIs
 class PinListCreateAPIView(generics.ListCreateAPIView):
 
+    #for list - only id and coordinates
     queryset = Pin.objects.all()
     serializer_class = PinSerializer
     parser_classes = [MultiPartParser, FormParser]
@@ -65,11 +66,8 @@ class PinDeleteAPIView(generics.DestroyAPIView):
 
 #create API
 class PinCreateAPIView(generics.CreateAPIView):
-    queryset = Pin.objects.all()
+    parser_class = [MultiPartParser, FormParser]
     serializer_class = PinSerializer
-    authentication_classes = [authentication.SessionAuthentication,
-                              TokenAuth]
-    permission_classes = [IsEditorPermission]
 
 #view list API
 class PinListAPIView(generics.ListAPIView):
@@ -78,3 +76,11 @@ class PinListAPIView(generics.ListAPIView):
     serializer_class = PinSerializer
     authentication_classes = [authentication.SessionAuthentication,
                               TokenAuth]
+
+#create Pin Review
+class PinReviewCreateAPIView(generics.CreateAPIView):
+    queryset = PinReview.objects.all()
+    serializer_class = PinReviewSerializer
+    authentication_classes = [authentication.SessionAuthentication,
+                              TokenAuth]
+    permission_classes = [IsEditorPermission]

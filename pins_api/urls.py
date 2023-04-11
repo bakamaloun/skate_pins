@@ -9,4 +9,5 @@ urlpatterns = [
     path('', views.PinListCreateAPIView.as_view()),
     path('create/', views.PinCreateAPIView.as_view()),
     path('all/', views.PinListAPIView.as_view()),
+    path('add_review/', views.PinReviewCreateAPIView.as_view()),
 ]
