@@ -24,7 +24,7 @@ class Pin(models.Model):
 
 class PinImages(models.Model):
     pin = models.ForeignKey(Pin, on_delete=models.CASCADE, related_name='images')
-    image = models.ImageField(upload_to='pins')
+    image = models.ImageField(upload_to=upload_to)
 
     def __str__(self):
         return '%r images' % (self.pin.name)
@@ -49,4 +49,4 @@ class PinReview(models.Model):
     bust = models.CharField(max_length=1, choices=RATING_CHOICES)
 
     def __str__(self):
-        return "%r review" % (self.pin)
+        return '%r review' % (self.pin)

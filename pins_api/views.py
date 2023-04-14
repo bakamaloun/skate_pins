@@ -1,14 +1,11 @@
 from django.shortcuts import render
-
-# Create your views here.
-
-from django.shortcuts import render
 from .models import Pin, PinReview
-from .serializers import PinSerializer, PinReviewSerializer
+from .serializers import PinSerializer, PinReviewSerializer, PinListSerializer
 from .permissions import IsEditorPermission
 from api.authentication import TokenAuth
 from rest_framework import generics, permissions, authentication
 from rest_framework.parsers import MultiPartParser, FormParser
+from django_filters.rest_framework import DjangoFilterBackend
 
 # Create your views here.
 
@@ -16,20 +13,20 @@ from rest_framework.parsers import MultiPartParser, FormParser
 class PinListCreateAPIView(generics.ListCreateAPIView):
 
     #for list - only id and coordinates
-    queryset = Pin.objects.all()
-    serializer_class = PinSerializer
+    queryset = Pin.objects.filter(is_approved = True)
+    serializer_class = PinListSerializer
     parser_classes = [MultiPartParser, FormParser]
     authentication_classes = [authentication.SessionAuthentication,
                               TokenAuth]
     permission_classes = [IsEditorPermission]
 
-    def perform_create(self, serializer):
-        title = serializer.validated_data.get('title')
-        content = serializer.validated_data.get('content')
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return PinSerializer
+        return PinListSerializer
 
-        if content is None:
-            content = title
-        serializer.save(content=content)
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
 
 #detail view API
 class PinDetailAPIView(generics.RetrieveAPIView):
@@ -72,10 +69,13 @@ class PinCreateAPIView(generics.CreateAPIView):
 #view list API
 class PinListAPIView(generics.ListAPIView):
 
-    queryset = Pin.objects.all()
-    serializer_class = PinSerializer
+    queryset = Pin.objects.filter(is_approved = True)
+    serializer_class = PinListSerializer
     authentication_classes = [authentication.SessionAuthentication,
                               TokenAuth]
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs
 
 #create Pin Review
 class PinReviewCreateAPIView(generics.CreateAPIView):
@@ -84,3 +84,12 @@ class PinReviewCreateAPIView(generics.CreateAPIView):
     authentication_classes = [authentication.SessionAuthentication,
                               TokenAuth]
     permission_classes = [IsEditorPermission]
+
+#Reviews of pins with filter
+class ReviewsOfPinAPIView(generics.ListAPIView):
+    queryset = PinReview.objects.all()
+    serializer_class = PinReviewSerializer
+    authentication_classes = [authentication.SessionAuthentication,
+                              TokenAuth]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['pin']
