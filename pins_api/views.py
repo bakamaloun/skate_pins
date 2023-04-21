@@ -13,7 +13,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 class PinListCreateAPIView(generics.ListCreateAPIView):
 
     #for list - only id and coordinates
-    queryset = Pin.objects.filter(is_approved = True)
+    queryset = Pin.objects.filter(is_approved=True)
     serializer_class = PinListSerializer
     parser_classes = [MultiPartParser, FormParser]
     authentication_classes = [authentication.SessionAuthentication,
@@ -70,7 +70,7 @@ class PinCreateAPIView(generics.CreateAPIView):
 class PinListAPIView(generics.ListAPIView):
 
     queryset = Pin.objects.filter(is_approved = True)
-    serializer_class = PinListSerializer
+    serializer_class = PinSerializer
     authentication_classes = [authentication.SessionAuthentication,
                               TokenAuth]
     def get_queryset(self):
@@ -93,3 +93,14 @@ class ReviewsOfPinAPIView(generics.ListAPIView):
                               TokenAuth]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['pin']
+
+#average rating for pin
+
+class MyPinsAPIView(generics.ListAPIView):
+    serializer_class = PinSerializer
+    authentication_classes = [authentication.SessionAuthentication,
+                              TokenAuth]
+
+    def get_queryset(self):
+        user = self.request.user.id
+        return Pin.objects.filter(created_by=user, is_approved=True)

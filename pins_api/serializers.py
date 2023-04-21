@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from .models import Pin, PinReview, PinImages
+from django.db.models import Avg
+from rest_framework.validators import UniqueTogetherValidator
 
 class PinImageSerializers(serializers.ModelSerializer):
     class Meta:
@@ -26,17 +28,28 @@ class PinSerializer(serializers.ModelSerializer):
             'created_by',
             'images',
             'uploaded_images',
-            'is_approved'
+            'is_approved',
+            'avg_rating',
+            'avg_bust'
         ]
 
         read_only_fields = ['created_by']
 
-        #extra_kwargs = {'created_by': {'default': serializers.CurrentUserDefault()}}
+    avg_rating = serializers.SerializerMethodField()
+
+    def get_avg_rating(self, ob):
+        # reverse check for reviews
+        return ob.Pins.all().aggregate(Avg('rating'))['rating__avg']
+
+    avg_bust = serializers.SerializerMethodField()
+
+    def get_avg_bust(self, ob):
+        # reverse check for bust
+        return ob.Pins.all().aggregate(Avg('bust'))['bust__avg']
 
     def validate_uploaded_images(self, value):
-        print(value)
         if len(value) > 3:
-            raise serializers.ValidationError('to much images')
+            raise serializers.ValidationError('too much images')
         return value
 
     def create(self, validated_data):
@@ -67,5 +80,16 @@ class PinReviewSerializer(serializers.ModelSerializer):
             'review',
             'pin',
             'rating',
-            'bust'
+            'bust',
+            'created_by'
+        ]
+
+        extra_kwargs = {'created_by': {'default': serializers.CurrentUserDefault()}}
+
+        validators = [
+            UniqueTogetherValidator(
+                queryset=PinReview.objects.all(),
+                fields=['pin', 'created_by'],
+                message='only 1 review per user'
+            )
         ]
