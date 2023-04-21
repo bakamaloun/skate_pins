@@ -1,0 +1,1 @@
+web: gunicorn skate-pin-app.wsgi
