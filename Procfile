@@ -1,1 +1,1 @@
-web: gunicorn skate-pin-app.wsgi
+web: gunicorn skate_pins.wsgi
