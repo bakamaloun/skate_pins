@@ -1,6 +1,6 @@
 from rest_framework import permissions
 
-class IsEditorPermission(permissions.DjangoModelPermissions):
+class IsEditorPermission(permissions.DjangoModelPermissionsOrAnonReadOnly):
 
     perms_map = {
         'GET': [],

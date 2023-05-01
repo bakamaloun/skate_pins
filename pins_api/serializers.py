@@ -13,7 +13,8 @@ class PinSerializer(serializers.ModelSerializer):
     images = PinImageSerializers(many=True, read_only=True)
     uploaded_images = serializers.ListField(
         child=serializers.ImageField(allow_empty_file=False, use_url=False),
-        write_only=True
+        write_only=True,
+        max_length=3
     )
 
     class Meta:
@@ -38,19 +39,19 @@ class PinSerializer(serializers.ModelSerializer):
     avg_rating = serializers.SerializerMethodField()
 
     def get_avg_rating(self, ob):
-        # reverse check for reviews
+        # reverse check for reviews score
         return ob.Pins.all().aggregate(Avg('rating'))['rating__avg']
 
     avg_bust = serializers.SerializerMethodField()
 
     def get_avg_bust(self, ob):
-        # reverse check for bust
+        # reverse check for bust score
         return ob.Pins.all().aggregate(Avg('bust'))['bust__avg']
 
-    def validate_uploaded_images(self, value):
-        if len(value) > 3:
-            raise serializers.ValidationError('too much images')
-        return value
+    # def validate_uploaded_images(self, value):
+    #     if len(value) > 3:
+    #         raise serializers.ValidationError('too much images')
+    #     return value
 
     def create(self, validated_data):
         uploaded_images = validated_data.pop('uploaded_images')
@@ -60,6 +61,23 @@ class PinSerializer(serializers.ModelSerializer):
             PinImages.objects.create(pin=pin, image=image)
 
         return pin
+
+    def clear_existing_images(self, instance, validated_data):
+        for pin_image in instance.images.order_by('-id').all()[3:]:
+            pin_image.image.delete()
+            pin_image.delete()
+
+    def update(self, instance, validated_data):
+        uploaded_images = validated_data.pop('uploaded_images')
+
+        if uploaded_images:
+
+            uploaded_images = (PinImages(pin=instance, image=image) for image in uploaded_images)
+            PinImages.objects.bulk_create(uploaded_images)
+            self.clear_existing_images(instance, validated_data)
+
+        return super().update(instance, validated_data)
+
 
 class PinListSerializer(serializers.ModelSerializer):
 
