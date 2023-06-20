@@ -61,3 +61,20 @@ class PinReview(models.Model):
 
     def __str__(self):
         return f'%r  {self.review}' % (self.pin)
+
+class PinEdit(models.Model):
+    name = models.CharField(max_length=100)
+    created_at = models.DateTimeField(default=timezone.now(), editable=False)
+    content = models.TextField(blank=True, null=True)
+    created_by = models.ForeignKey(User, related_name='Edit', on_delete=models.CASCADE, null=True)
+    pin = models.ForeignKey(Pin, related_name='Pin', on_delete=models.CASCADE, null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.name}"
+
+class Favourite(models.Model):
+    user = models.ForeignKey(User, related_name='F_user', on_delete=models.DO_NOTHING)
+    pin = models.ForeignKey(Pin, related_name='F_pin', on_delete=models.DO_NOTHING)
+
+    def __str__(self):
+        return f"{self.user} fav {self.pin}"

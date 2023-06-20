@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Pin, PinReview, PinImages
+from .models import Pin, PinReview, PinImages, PinEdit, Favourite
 from django.db.models import Avg
 from rest_framework.validators import UniqueTogetherValidator
 
@@ -109,5 +109,38 @@ class PinReviewSerializer(serializers.ModelSerializer):
                 queryset=PinReview.objects.all(),
                 fields=['pin', 'created_by'],
                 message='only 1 review per user'
+            )
+        ]
+
+class PinEditSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PinEdit
+        fields = [
+            'name',
+            'id',
+            'content',
+            'created_at',
+            'created_by',
+            'pin'
+        ]
+
+        extra_kwargs = {'created_by': {'default': serializers.CurrentUserDefault()}}
+
+class FavouriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Favourite
+        fields = [
+            'user',
+            'pin',
+            'id'
+        ]
+
+        extra_kwargs = {'user': {'default': serializers.CurrentUserDefault()}}
+
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Favourite.objects.all(),
+                fields=['pin', 'user'],
+                message='cant add to fav more than once'
             )
         ]

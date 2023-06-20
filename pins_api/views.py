@@ -1,6 +1,6 @@
 from django.shortcuts import render
-from .models import Pin, PinReview, PinImages
-from .serializers import PinSerializer, PinReviewSerializer, PinListSerializer, PinImageSerializers
+from .models import Pin, PinReview, PinImages, Favourite
+from .serializers import PinSerializer, PinReviewSerializer, PinListSerializer, PinImageSerializers, PinEditSerializer, FavouriteSerializer
 from .permissions import IsEditorPermission
 from api.authentication import TokenAuth
 from rest_framework import generics, permissions, authentication
@@ -114,4 +114,15 @@ class PinImageUpdateAPIView(generics.UpdateAPIView):
                               TokenAuth]
     permission_classes = [IsEditorPermission]
     lookup_field = 'pk'
+
+class PinEditCreateAPIView(generics.CreateAPIView):
+    parser_class = [MultiPartParser, FormParser]
+    serializer_class = PinEditSerializer
+
+class FavouriteAddAPIView(generics.ListCreateAPIView):
+    queryset = Favourite.objects.all()
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['user']
+    parser_class = [MultiPartParser, FormParser]
+    serializer_class = FavouriteSerializer
 

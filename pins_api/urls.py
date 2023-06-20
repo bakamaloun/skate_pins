@@ -13,4 +13,6 @@ urlpatterns = [
     path('reviews/', views.ReviewsOfPinAPIView.as_view()),
     path('my_pins/', views.MyPinsAPIView.as_view()),
     path('<int:pk>/img_update/', views.PinImageUpdateAPIView.as_view()),
+    path('suggest_edit/', views.PinEditCreateAPIView.as_view()),
+    path('favourites/', views.FavouriteAddAPIView.as_view())
 ]
